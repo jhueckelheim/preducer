@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Python script to downgrade a double precision Fortran routine to single
 (real4) precision without changing its external signature, for example
@@ -39,6 +41,7 @@ import textwrap
 
 # Read arguments
 filename = sys.argv[1]
+filename_preduced = "%s_preduced.f"%(filename[0:-2])
 unitname = None
 if(len(sys.argv)>2):
     unitname = sys.argv[2]
@@ -55,6 +58,11 @@ fp.parse()
 # Hacky way to process files containing only one subroutine and nothing else.
 if(len(fp.block.content) > 1):
     raise Exception("File contains more than one Unit")
+if(len(fp.block.content) == 0):
+    print("Warning: Preducer called on empty file %s"%(filename))
+    from shutil import copyfile
+    copyfile(filename, filename_preduced)
+    exit()
 unit = fp.block.content[0]
 if(unit.blocktype != 'subroutine'):
     raise Exception("Top Unit is not a subroutine")
@@ -125,12 +133,14 @@ def f77linebreaks(instr):
     outstr = ''
     for l in instr.splitlines():
         if(l[0]!=' ' or l.lstrip()[0]=='!'): # comment line, never touch those
-          outstr += l+'\n'
+            outstr += l+'\n'
         else:
-          while(len(l) > 72):
-              outstr += l[0:71]+'\n'
-              l = '     *'+l[71:]
-          outstr += l+'\n'
+            if(len(l) > 7 and l[0:7].strip().isnumeric()): # workaround for parser bug: numeric line labels are printed with an incorrect blank space in column 1. Remove this.
+                l = l[0:7].strip().ljust(7) + l[7:]
+            while(len(l) > 72):
+                outstr += l[0:71]+'\n'
+                l = '     *'+l[71:]
+            outstr += l+'\n'
     return outstr
 
 def real4subroutine(unit):
@@ -167,12 +177,12 @@ def real4subroutine(unit):
     print(" - input: %s"%(doubleargs_predefined.__str__()))
     print(" - unused: %s"%(doublevars.intersection(args).difference(doubleargs_predefined.union(doubleargs_modified)).__str__()))
 
-    with open("%s_preduced.f"%(filename[0:-2]),'w') as file:
+    with open(filename_preduced,'w') as file:
         # Cloning part: Create a subroutine that has the same body as the original
         # one, but uses the new precision throughout and append _sp to its name
         fclone = fp.block.tofortran()
         fclone = fclone.replace('DOUBLEPRECISION','REAL')
-        fclone = fclone.replace('SUBROUTINE group','SUBROUTINE group_sp')
+        fclone = re.sub('SUBROUTINE %s'%unitname,'SUBROUTINE %s_sp'%unitname, fclone, flags=re.IGNORECASE)
         fclone = f77linebreaks(fclone)
         file.write(fclone)
         file.write('\n\n')
