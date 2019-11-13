@@ -79,6 +79,30 @@ def cleanVariableName(var):
     """
     return re.split('[,(]',var)[0].lower()
 
+def find_vars(varstring):
+    current_varname = ''
+    varlist = list()
+    parentheses_depth = 0
+    for i, c in enumerate(varstring):
+        if c == '(':
+            parentheses_depth += 1
+        elif c == ')':
+            parentheses_depth -= 1
+        elif parentheses_depth == 0:
+            if c != ' ' and c != '\t':
+                if(c == ','):
+                    if(len(current_varname.strip())>0):
+                        varlist.append(current_varname)
+                        current_varname = ''
+                else:
+                    current_varname += c
+    varlist.append(current_varname)
+    if(varlist[0].lower()=='doubleprecision'):
+        del(varlist[0])
+    else:
+        varlist[0] = varlist[0][15:]
+    return varlist
+
 def visitDoublePrecisionStmt(node):
     """
     The f77 parser treats a line containing a double precision variable
@@ -89,9 +113,10 @@ def visitDoublePrecisionStmt(node):
     """
     if(type(node)!=fparser.one.typedecl_statements.DoublePrecision):
         raise Exception("visitDoublePrecisionStmt called on wrong node type")
-    slist = node.item.line.split() # produce an array like ['double', 'precision', 'foo(a,3),','bar']
+    slist = find_vars(node.item.line)
+    print(slist)
     varset = set()
-    for s in slist[2:]: # skip the first two elements, which are always ['double', 'precision']
+    for s in slist:
         varname = cleanVariableName(s)
         varset.add(varname) # add this variable name to set
     return varset
@@ -200,7 +225,8 @@ def real4subroutine(unit):
                 varnames = visitDoublePrecisionStmt(d)
                 d_sp = d.item.line.replace('DOUBLE PRECISION','REAL').lower()
                 for vn in varnames:
-                    d_sp = d_sp.replace(vn, "%s_sp"%vn)
+                    print(vn)
+                    d_sp = re.sub(r"\b%s\b" % vn , '%s_sp'%vn, d_sp)
                 decls_sp.add(d_sp)
             decls_sp.add(d.item.line)
         decls_sp = "\n".join(decls_sp)
