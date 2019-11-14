@@ -114,7 +114,6 @@ def visitDoublePrecisionStmt(node):
     if(type(node)!=fparser.one.typedecl_statements.DoublePrecision):
         raise Exception("visitDoublePrecisionStmt called on wrong node type")
     slist = find_vars(node.item.line)
-    print(slist)
     varset = set()
     for s in slist:
         varname = cleanVariableName(s)
@@ -227,7 +226,6 @@ def real4subroutine(unit):
                 varnames = visitDoublePrecisionStmt(d)
                 d_sp = d.item.line.replace('DOUBLE PRECISION','REAL').lower()
                 for vn in varnames:
-                    print(vn)
                     d_sp = re.sub(r"\b%s\b" % vn , '%s_sp'%vn, d_sp)
                 decls_sp.add(d_sp)
             decls_sp.add(d.item.line)
