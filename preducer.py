@@ -157,7 +157,9 @@ def f77linebreaks(instr):
     """
     outstr = ''
     for l in instr.splitlines():
-        if(l[0]!=' ' or l.lstrip()[0]=='!'): # comment line, never touch those
+        if(len(l.strip())==0): # empty line
+            outstr += l+'\n'
+        elif(l[0]!=' ' or l.lstrip()[0]=='!'): # comment line, never touch those
             outstr += l+'\n'
         else:
             if(len(l) > 7 and l[0:7].strip().isnumeric()): # workaround for parser bug: numeric line labels are printed with an incorrect blank space in column 1. Remove this.
@@ -218,7 +220,7 @@ def real4subroutine(unit):
         args_str = ", ".join(args)
         args_sp = args_str
         for dv in doublevars:
-            args_sp = args_sp.replace(dv, "%s_sp"%dv)
+            args_sp = re.sub(r"\b%s\b" % dv , '%s_sp'%dv, args_sp)
         decls_sp = set()
         for d in decls:
             if(type(d) == fparser.one.typedecl_statements.DoublePrecision):
