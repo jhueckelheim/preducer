@@ -1,5 +1,5 @@
 # Preducer
-A precision reducer for Fortran77 files
+A precision reducer for Fortran77 files, from double precision to real.
 
 ## Why?
 We needed a way to downgrade the precision in F77 files, to observe the
