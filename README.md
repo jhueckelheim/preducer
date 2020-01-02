@@ -13,15 +13,18 @@ You wouldn't have used Preducer in a production code anyways, would you?
 Preducer is a Python script that parses F77 files, finds all subroutines and
 functions contained therein, and changes all their variables from double to
 single precision. The new routines/functions will have the original name with
-\_sp appended.  For example, `subroutine foo` becomes `subroutine foo_sp`. To
-make it easier to call these new routines, a wrapper will be created that has
-the original name (in this case `foo`) and all arguments still have the
+\_sp appended.  For example, `subroutine foo` becomes `subroutine foo_sp`.
+
+To make it easier to call these new routines, a wrapper will be created that
+has the original name (in this case `foo`) and all arguments still have the
 original precision. This wrapper will cast all inputs to single precision, then
 call the low precision routine (`foo_sp`) using single precision inputs, and
-finally casts the results to double precision.
+finally casts the results to double precision before returning. This way, the
+files created by Preducer can be used as drop-in replacements in existing
+software.
 
 ## Installation
-Preducer imports the following packages, pip install them as necessary:
+Preducer imports the following packages, (pip) install them as necessary:
 ```
 fparser, sys, re, textwrap
 ```
