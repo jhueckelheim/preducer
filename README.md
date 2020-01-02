@@ -47,7 +47,7 @@ The Julia code was modified to call Preducer and pass verbosity flags
 appropriately, the result is also included in this repository.
 
 ## CUTEST installation
-If you plan to use Preducer with the Julia CUTEST package (see below), it is
+If you plan to use Preducer with the Julia CUTEST package, it is
 additionally necessary to define an environment variable called "PREDUCER"
 holding the Preducer directory. In the `CUTEST.jl` file, the follwing lines
 must be added directly below `if isfile("ELFUN.f")`:
