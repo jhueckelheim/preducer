@@ -3,7 +3,11 @@ A precision reducer for Fortran77 files, from `double precision` to `real`.
 
 ## Why?
 We needed a way to downgrade the precision in F77 files, to observe the
-differences in roundoff.
+differences in roundoff. Note that using preducer does not necessarily improve
+performance, as the created code contains various cast operations. Preducer
+is only really useful for studying roundoff effects, before modifying the
+precision by other means if the reduced precision is still sufficient.
+You wouldn't have used Preducer in a production code anyways, would you?
 
 ## How?
 Preducer is a Python script that parses F77 files, finds all subroutines and
