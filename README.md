@@ -61,3 +61,10 @@ must be added directly below `if isfile("ELFUN.f")`:
         run(`mv RANGE_preduced.f RANGE.f`)
       end
 ```
+
+## CUTEST usage
+Use Preducer from Julia's CUTEST as follows:
+```
+nlp = CUTEstModel("ROSENBR", "-preduce")
+nlp = CUTEstModel("ROSENBR", verbose=true, "-preduce")
+```
